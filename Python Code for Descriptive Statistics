@@ -1,0 +1,188 @@
+#import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import seaborn as sns
+
+#Location of Data
+os.getcwd()
+os.chdir('/Users/B/Downloads')
+os.getcwd()
+
+#Read dataset
+NY_df = pd.read_csv('Jupiter_Merge_Final_MCfix.csv')
+NY_df.head() #examine df
+
+NY_df.dtypes #check data types of columns
+
+NY_df.fillna(0)
+
+#Percent of Population using Medicaid, QHP, CHP, EP, or Uninsured
+NY_df['Medicaid.Rate'] = (NY_df['Medicaid']/NY_df['Total Population'])*100
+NY_df['QHP.Rate'] = (NY_df['QHP']/NY_df['Total Population'])*100
+NY_df['CHP.Rate'] = (NY_df['CHP']/NY_df['Total Population'])*100
+NY_df['EP.Rate'] = (NY_df['EP']/NY_df['Total Population'])*100
+NY_df['Uninsured.Rate'] = (NY_df['Uninsured Total Population']/NY_df['Total Population'])*100
+
+#Summary statistics
+Insurancedf = NY_df[['Medicaid.Rate', 'QHP.Rate', 'CHP.Rate', 'EP.Rate', 'Uninsured.Rate']]
+Insurancedf.describe()
+
+#Examine it as a boxplot to look at outliers
+sns.factorplot(x="variable", y="value", data=pd.melt(Insurancedf), kind="box")
+plt.xticks(rotation=90)
+plt.xlabel('Type of Health Insurance')
+plt.ylabel('% of NY Population')
+plt.title('Distribution of Insurance Types Throughout NY Counties 2010 to 2020'
+
+#Who had the highest rate of Medicaid users?
+County_Medicaid = NY_df [['County', 'Medicaid.Rate']]
+County_Medicaid = County_Medicaid.sort_values(by = 'Medicaid.Rate', ascending = False)
+County_Medicaid.head()
+
+top10_county_Medicaid = County_Medicaid.head(10)
+top10_county_Medicaid
+
+#Plot it to visualize
+sns.barplot(x="County", y="Medicaid.Rate", data=top10_county_Medicaid)
+plt.xticks(rotation=-45)
+plt.title('Top 10 NY Counties with Highest Medicaid Rates From 2010-2020')
+
+#Dataframe for educational opportunities
+Educationdf = NY_df[['Less than high school graduate', 'High school graduate, GED, or alternative', 
+                    "Some college or associate's degree", "Bachelor's degree or higher"]]
+Educationdf.describe()
+
+#Examine it as a boxplot to look at outliers
+sns.factorplot(x="variable", y="value", data=pd.melt(Educationdf), kind="box")
+plt.xticks(rotation=90)
+plt.xlabel('Educational Level')
+plt.ylabel('% of NY Population')
+plt.title('Distribution of Educational Attainment Throughout NY Counties 2010 to 2020')
+
+Economic_Opportunitydf = NY_df[['Unemployment Rate', 'Employed', 'Poverty Level', 'Unemployment Duration (weeks)',
+                               'HOUSEHOLD INCOME (IN 2010 INFLATION ADJUSTED DOLLARS)!!Under $25,000',
+                               'HOUSEHOLD INCOME (IN 2010 INFLATION ADJUSTED DOLLARS)!!$25,000 to $49,999',
+                               'HOUSEHOLD INCOME (IN 2010 INFLATION ADJUSTED DOLLARS)!!$50,000 to $74,999',
+                               'HOUSEHOLD INCOME (IN 2010 INFLATION ADJUSTED DOLLARS)!!$75,000 to $99,999',
+                               'HOUSEHOLD INCOME (IN 2010 INFLATION ADJUSTED DOLLARS)!!$100,000 and over',
+                               'Median earnings (dollars)']]
+
+Economic_Opportunitydf.describe()
+
+#Calculating Voter Participation %
+NY_df['National.Participation'] = (NY_df['President']/NY_df['Total Registered Voters'])*100
+NY_df['State.Participation'] = ((NY_df['State.Governor'] + NY_df['State.Proposal']) /NY_df['Total Registered Voters'])*100
+NY_df['Voter.Registration.Rate'] = (NY_df['Total Registered Voters']/NY_df['Total Population'])*100
+#Create dataframe for political engagement variables
+Poltical_engagementdf = NY_df[['Total Registered Voters', 'President', 'Senate', 
+                               'State.Governor', 'State.Proposal', 'State.Participation','Voter.Registration.Rate']]
+#Summary Statistics for it
+Poltical_engagementdf.describe()
+
+#Voter Participation Summary
+Participation_df = NY_df[['National.Participation', 'State.Participation']]
+Participation_df.describe()
+
+#Participation Votes
+Nat_part = NY_df[['County', 'Year', 'National.Participation']]
+Nat_part_county = Nat_part.sort_values(by = 'National.Participation', ascending = False)
+Nat_part_county.head()
+
+#Who had the highest presidential Participation in 2016?
+#Gather national participation for year 2016
+Nat_part16 = Nat_part[Nat_part['Year'] == 2016]
+Nat_part16 #check it
+
+#Sort by high to low
+Nat_part16 = Nat_part16.sort_values(by='National.Participation',ascending=False)
+top10_natpart16 = Nat_part16.head(10) #Top 10 Counties with highest National participation from Voters in 2016
+
+#Plot top 10 Counties with highest National Participation Rates
+sns.barplot(x="County", y="National.Participation", data=top10_natpart16)
+plt.xticks(rotation=-45)
+plt.title('Top 10 Counties with Highest Voter Participation for 2016 Presidential Election in NY')
+
+#Who had the lowerst participation for 2016 Presidential election?
+lownat_part16 = Nat_part16.sort_values(by='National.Participation',ascending=True)
+bot10_natpart16 = lownat_part16.head(10)
+sns.barplot(x="County", y="National.Participation", data=bot10_natpart16)
+plt.xticks(rotation=-45)
+plt.title('Top 10 Counties with Lowest Voter Participation for 2016 Presidential Election in NY')
+
+#The counties that had highest/lowest voter participation are the same with unemployment Rate?
+County_Unemployment = NY_df[['County', 'Year', 'Unemployment Rate']]
+County_Unemployment
+
+#Let's first just look at 2016
+County_Unemployment16 = County_Unemployment[County_Unemployment['Year'] == 2016]County_Unemployment16#Sort it high to low
+County_Unemployment16 = County_Unemployment16.sort_values(by='Unemployment Rate',ascending=False)top10_county_UNEM16 = County_Unemployment16.head(10)top10_county_UNEM16
+
+#Graph the highest
+sns.barplot(x="County", y="Unemployment Rate", data=top10_county_UNEM16)
+plt.xticks(rotation=-45)
+plt.title('Top 10 Counties with Highest Unemployment Rate in for 2016')
+
+#Bronx, Jefferson, Cattaraugus are in top 10 unemployment rate and lowest voter participation in 2016
+
+#Create dataframe of unemployment rates for each county
+County_Unemployment = NY_df [['County', 'Unemployment Rate']]
+County_Unemployment.head()
+
+#Calculate average unemployment
+Average_unemployment_county = County_Unemployment.groupby(['County']).mean()
+#Rank it high to low
+Average_unemployment_county = Average_unemployment_county.sort_values(by='Unemployment Rate',ascending=False)
+Average_unemployment_county.head()
+#Gathering top 10 highest
+top10_avg_unemployment = Average_unemployment_county.head(10)
+top10_avg_unemployment
+
+#Plot the 10 counties with highest average unemployment rates
+top10_avg_unemployment.plot(kind = 'bar')
+plt.title('Top 10 Counties in NY with Highest Average Unemployment Rates from 2010 to 2018')
+plt.xlabel('County')
+plt.ylabel('Rate of Unemployment (%)')
+
+#Gather average unemployment from low to high
+Average_unemployment_county2 = Average_unemployment_county.sort_values(by='Unemployment Rate',ascending=True)
+low10_avg_unemployment = Average_unemployment_county2.head(10)
+low10_avg_unemployment
+
+#Plot the 10 lowest average rates of unemployment
+low10_avg_unemployment.plot(kind = 'bar')
+plt.title('Top 10 Counties in NY with Lowest Average Unemployment Rates from 2010 to 2018')
+plt.xlabel('County')
+plt.ylabel('Rate of Unemployment (%)')
+
+#Make a smaller dataframe of Variable want to examine correlation between
+NY_df_small = NY_df[['Unemployment Rate', 'Medicaid.Rate','Participation.Rate',
+                    'Poverty Level', 'Voter.Registration.Rate']]
+
+corrMatrix = NY_df_small.corr()
+fig = sns.heatmap(corrMatrix, annot=True,cmap="Blues")
+
+fig.figure.savefig('NY_Correlation Matrix Heatmap.png',bbox_inches="tight")
+
+#Which county has the most registered voters?
+Registered_votercount = NY_df[['County','Total Registered Voters', 'Year']]
+Registered_votercount = Registered_votercount.sort_values(by='Total Registered Voters',ascending=False)
+Registered_votercount
+
+Registered_votercount16 = Registered_votercount[Registered_votercount['Year'] == 2016]
+Registered_votercount16.head
+
+top10_regvot16 = Registered_votercount16.head(10) #Top 10 Counties with highest Voter registration in in 2016
+
+#Plot top 10 Counties with highest total registered voter pop. 
+sns.barplot(x="County", y="Total Registered Voters", data=top10_regvot16)
+plt.xticks(rotation=-45)
+plt.title('Top 10 Counties with Highest Voter Registration for 2016 Presidential Election in NY')
+
+bottom10_regvot16 = Registered_votercount16.tail(10)
+
+#Plot top 10 Counties with highest total registered voter pop. 
+sns.barplot(x="County", y="Total Registered Voters", data=bottom10_regvot16)
+plt.xticks(rotation=-45)
+plt.title('Top 10 Counties with Highest Voter Registration for 2016 Presidential Election in NY')
